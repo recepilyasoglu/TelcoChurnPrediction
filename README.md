@@ -1,4 +1,4 @@
-# Telco Customer Churn Prediction
+# Telco Customer Churn Dataset - Prediction
 
 ## Business Problem
 
