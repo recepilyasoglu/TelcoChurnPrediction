@@ -55,9 +55,9 @@ df.info()
 df.dtypes
 
 
-## Görev 1 : Keşifçi Veri Analizi
+## Exploratory Data Analysis (EDA)
 
-# Adım 1: Numerik ve kategorik değişkenleri yakalayınız.
+# Capturing Numeric and Categorical Variables
 
 def grab_col_names(dataframe, cat_th=2, car_th=20):
     """
@@ -140,7 +140,8 @@ def get_stats(dataframe, col):
 get_stats(df, cat_cols)
 get_stats(df, num_cols)
 
-# Adım 2: Gerekli düzenlemeleri yapınız. (Tip hatası olan değişkenler gibi)
+
+# Making the necessary arrangements. (Like variables with type errors)
 
 df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
 
@@ -152,7 +153,7 @@ cat_cols
 df[cat_cols]
 
 
-# Adım 3: Numerik ve kategorik değişkenlerin veri içindeki dağılımını gözlemleyiniz.
+# Observing the distribution of numerical and categorical variables in the data
 
 def cat_summary(dataframe, col_name, plot=False):
     print(pd.DataFrame({col_name: dataframe[col_name].value_counts(),
@@ -181,15 +182,17 @@ def num_summary(dataframe, numerical_col, plot=False):
 
 for col in num_cols:
     num_summary(df, col, True)
+    
 
-# Adım 4: Kategorik değişkenler ile hedef değişken incelemesini yapınız.
+# Dependent(target) variable analysis with Categorical variables
 
 cat_cols = cat_cols[:-1]
 num_cols = num_cols[1:]
 
 df.groupby("Churn")[cat_cols].count()
 
-# Adım 5: Aykırı gözlem var mı inceleyiniz.
+
+# Outliers analysis
 
 df[num_cols].describe().T
 
@@ -219,7 +222,8 @@ for col in num_cols:
     print(col, check_outlier(df, num_cols))
 
 
-# Adım 6: Eksik gözlem var mı inceleyiniz.
+# Missing values analysis.
+
 def missing_values_table(dataframe, na_name=False):
     na_columns = [col for col in dataframe.columns if dataframe[col].isnull().sum() > 0]
 
@@ -236,9 +240,12 @@ missing_values_table(df)
 
 df.isnull().sum()
 
-## Görev 2 : Feature Engineering
 
-# Adım 1: Eksik ve aykırı gözlemler için gerekli işlemleri yapınız.
+
+## Feature Engineering
+
+
+# Processing for Missing and Outlier values
 
 df.groupby(cat_cols)["TotalCharges"].mean()
 
@@ -248,10 +255,10 @@ for col in num_cols:
 
 df.dropna(inplace=True)
 
-# df.corr().sort_values("Churn", ascending=False) \
-#     .drop("Churn", axis=0)
+# df.corr().sort_values("Churn", ascending=False)
 
-# Adım 2: Yeni değişkenler oluşturunuz.
+
+# Creating new variables
 
 df.columns
 
@@ -274,7 +281,9 @@ df.groupby(["Cat_Tenure", "PaymentMethod"]).agg({"PaymentMethod": "count"})
 df["ContractLength"] = np.where(df["Contract"] == "Month-to-month", "Short", "Long")
 df[["Contract", "ContractLength"]].head(20)
 
-# Adım 3: Encoding işlemlerini gerçekleştiriniz.
+
+
+# Encoding 
 new_variables = df[["Cat_Tenure", "Cat_MonthlyCharges", "ContractLength"]]
 
 
@@ -285,6 +294,7 @@ def count_of_values(dataframe):
 
 
 count_of_values(new_variables)
+
 
 # Label Encoding
 binary_cols = [col for col in df.columns if df[col].dtype not in ["int64", "float64"]
@@ -304,6 +314,8 @@ for col in binary_cols:
 
 df[binary_cols].head()
 df
+
+
 # One Hot Encoding
 ohe_cols = [col for col in df.columns if 10 >= df[col].nunique() > 2]
 
@@ -316,7 +328,9 @@ def one_hot_encoder(dataframe, categorical_cols, drop_first=True):
 df = one_hot_encoder(df, ohe_cols)
 df.head()
 
-# Adım 4: Numerik değişkenler için standartlaştırma yapınız.
+
+# Standardization for Numeric variables
+
 for col in num_cols:
     print(col, check_outlier(df, col))
 
@@ -325,9 +339,11 @@ df[num_cols] = scaler.fit_transform(df[num_cols])
 
 df[num_cols].head()
 
-## Görev 3 : Modelleme
 
-# Adım 1: Sınıflandırma algoritmaları ile modeller kurup, accuracy skorlarını inceleyip. En iyi 4 modeli seçiniz.
+
+## Modelling
+
+# Establishing models with classification algorithms
 
 y = df["Churn"]
 X = df.drop(["Churn", "customerID"], axis=1)
@@ -336,9 +352,11 @@ random_user = X.sample(1)  # rastgele bir kullanıcı oluşturuyoruz
 
 # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
 
+
 # Logistic Regression
 log_model = LogisticRegression().fit(X, y)
 
+# cross validation
 log_cv_results = cross_validate(log_model,
                                 X, y,  # bağımlı ve bağımsız değişkenler
                                 cv=5,  # dördüyle model kur, biriyle test et
@@ -352,9 +370,11 @@ log_auc = log_cv_results['test_roc_auc'].mean()
 # 0.8463000059038415
 log_model.predict(random_user)
 
+
 # RandomForestClassifier
 rf_model = RandomForestClassifier().fit(X, y)
 
+# cross validation
 rf_cv_results = cross_validate(rf_model,
                                X, y,
                                cv=5,
@@ -368,9 +388,11 @@ rf_auc = rf_cv_results['test_roc_auc'].mean()
 # 0.8244377769644089
 rf_model.predict(random_user)
 
+
 # GBM
 gbm_model = GradientBoostingClassifier().fit(X, y)
 
+# cross validation
 gbm_cv_results = cross_validate(gbm_model, X, y,
                                 cv=5,
                                 scoring=["accuracy", "f1", "roc_auc"])
@@ -382,9 +404,11 @@ gbm_f1 = gbm_cv_results['test_f1'].mean()
 gbm_auc = gbm_cv_results['test_roc_auc'].mean()
 # 0.84598827585678
 
+
 # LightGBM
 lgbm_model = LGBMClassifier().fit(X, y)
 
+# cross validation
 lgbm_cv_results = cross_validate(lgbm_model,
                                  X, y,
                                  cv=5,
@@ -398,9 +422,11 @@ lgbm_auc = lgbm_cv_results['test_roc_auc'].mean()
 # 0.8350053407214943
 lgbm_model.predict(random_user)
 
+
 # XGBoost
 xgboost_model = XGBClassifier(use_label_encoder=False)
 
+# cross validation
 xg_cv_results = cross_validate(xgboost_model,
                                X, y,
                                cv=5,
@@ -431,9 +457,11 @@ knn_auc = knn_cv_results['test_roc_auc'].mean()
 # 0.7040636259728742
 knn_model.predict(random_user)
 
+
 # Decision Tree
 dt_model = DecisionTreeClassifier().fit(X, y)
 
+# cross validation
 dt_cv_results = cross_validate(dt_model,
                                X, y,
                                cv=5,
@@ -446,6 +474,9 @@ dt_f1 = dt_cv_results['test_f1'].mean()
 dt_auc = dt_cv_results['test_roc_auc'].mean()
 # 0.6571461457034756
 dt_model.predict(random_user)
+
+
+# Examining accuracy scores and choosing the best 4 models
 
 best_model_results = pd.DataFrame(
     {"Model": ["Logistic Regression", "Random Forest", "GBM", "LightGBM", "XGBoost", "KNN", "Decision Tree"],
@@ -460,10 +491,9 @@ top4_models = best_model_results.head(4).reset_index()
 # del top4_models["index"]
 
 
-# Adım 2: Seçtiğiniz modeller ile hiperparametre optimizasyonu gerçekleştirin
-# ve bulduğunuz hiparparametreler ile modeli tekrar kurunuz.
+# Performing hyperparameter optimization with selected models
 
-# Seçilen Modeller: GBM, Logistic Regression, LightGBM, Random Forest
+# Selected Models: GBM, Logistic Regression, LightGBM, Random Forest
 
 # GBM
 gbm_params = {"learning_rate": [0.01, 0.1],
@@ -514,6 +544,7 @@ log_final_f1 = log_final_cv_results['test_f1'].mean()
 # 0.5911821068005934 -> 0.5913753619751492
 log_final_auc = log_final_cv_results['test_roc_auc'].mean()
 # 0.8463000059038415 -> 0.8458423917254893
+
 
 # LightGBM
 lgbm_params = {"learning_rate": [0.01, 0.1],
@@ -567,7 +598,7 @@ rf_final_auc = rf_final_cv_results['test_roc_auc'].mean()
 rf_model.predict(random_user)
 
 
-# Hiperparametre optimizasyonlarından elde edilen sonuçlar ve önceki sonuçların kıyaslanması
+# Comparison of results from hyperparameter optimization with previous results
 
 top4_models["New_Accuracy"] = [log_final_test, gbm_final_test, lgbm_final_test, rf_final_test]
 top4_models["New_AUC"] = [log_final_auc, gbm_final_auc, lgbm_final_auc, rf_final_auc]
@@ -576,7 +607,9 @@ top4_models["New_F1_Score"] = [log_final_f1, gbm_final_f1, lgbm_final_f1, rf_fin
 top4_models.sort_values("New_Accuracy", ascending=False)
 
 
+
 # Features Importing
+
 def plot_importance(model, features, num=len(X), save=False):
     feature_imp = pd.DataFrame({'Value': model.feature_importances_, 'Feature': features.columns})
     plt.figure(figsize=(10, 10))
