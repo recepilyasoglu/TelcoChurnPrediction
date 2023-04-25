@@ -4,15 +4,13 @@
 
 ############ Telco Churn Prediction ############
 
-# İş Problemi
+# Business Problem
+## It is expected to develop a machine learning model that can predict customers who will leave the company.
 
-# Şirketi terk edecek müşterileri tahmin edebilecek bir makine öğrenmesi modeli geliştirilmesi beklenmektedir.
+# Dataset Story
+## Telco churn data includes information about a fictitious telecom company that provided home phone and Internet services to 7043 California customers in the third quarter.
+## Shows which customers have left, stayed or signed up for their servicet_importance(rf_final, X)
 
-
-# Veri Seti Hikayesi
-
-# Telco müşteri kaybı verileri, üçüncü çeyrekte Kaliforniya'daki 7043 müşteriye ev telefonu ve İnternet hizmetleri sağlayanhayalibir telekom şirketi hakkında bilgi içerir.
-# Hangi müşterilerin hizmetlerinden ayrıldığını, kaldığını veya hizmete kaydolduğunug österir
 
 # Importing Libraries
 import warnings
