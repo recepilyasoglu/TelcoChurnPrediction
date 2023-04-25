@@ -1,4 +1,4 @@
-# TelcoChurnPrediction
+# Telco Customer Churn Prediction
 
 ## Business Problem
 
